@@ -7,7 +7,7 @@ import torch
 import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 from data import load_and_split
-from model import GCN
+from models.gcn import MultiHopGCN
 from train import train_epoch, validate
 from eval import evaluate
 from train import EarlyStopper
@@ -45,7 +45,11 @@ def main(trial_num=10):
             # ==================================
             
             # 初始化模型
-            model = GCN(data.x.size(1), config['hidden_dim']).to(device)
+            model = MultiHopGCN(in_channels=dataset.num_features,
+                   hidden_channels=args.hidden,
+                   out_channels=args.dim,
+                   num_layers=args.layer,
+                   hops=args.hops).to(device)
             optimizer = torch.optim.AdamW(model.parameters(), lr=config['lr'], 
                                         weight_decay=config['weight_decay'])
             criterion = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
